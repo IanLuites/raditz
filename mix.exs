@@ -34,7 +34,7 @@ defmodule Raditz.MixProject do
 
   def package do
     [
-      name: :data_daemon,
+      name: :raditz,
       maintainers: ["Ian Luites"],
       licenses: ["MIT"],
       files: [

@@ -1,6 +1,14 @@
 defmodule Raditz do
-  @moduledoc """
-  Documentation for Raditz.
+  @moduledoc ~S"""
+  Pooled Redis client.
+
+  # Quick Installation
+
+  ```
+  defmodule Redis do
+    use Raditz, url: "redis://localhost"
+  end
+  ```
   """
 
   @doc @moduledoc
