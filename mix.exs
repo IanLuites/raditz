@@ -62,11 +62,11 @@ defmodule Raditz.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:redix, "~> 0.9.3"},
+      {:redix, "~> 0.10"},
       {:poolboy, "~> 1.5"},
 
       # Dev / Test
-      {:analyze, "~> 0.1.3", only: [:dev, :test], runtime: false, optional: true}
+      {:analyze, "~> 0.1.4", only: [:dev, :test], runtime: false, optional: true}
     ]
   end
 end
