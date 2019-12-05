@@ -9,7 +9,22 @@ defmodule Raditz do
     use Raditz, url: "redis://localhost"
   end
   ```
+
+  Dynamic configuration:
+  ```
+  defmodule Redis do
+    use Raditz
+
+    @impl Raditz
+    def configure, do: [url: System.get_env("REDIS_URL")]
+  end
+  ```
   """
+
+  @doc ~S"""
+  Apply dynamic configuration at startup.
+  """
+  @callback configure :: :ok
 
   @doc @moduledoc
   defmacro __using__(opts \\ []) do
@@ -27,7 +42,7 @@ defmodule Raditz do
       @doc false
       @spec child_spec(Keyword.t()) :: term
       def child_spec(opts),
-        do: unquote(pool).child_spec(__MODULE__, Keyword.merge(unquote(opts), opts))
+        do: unquote(pool).child_spec(__MODULE__, Keyword.merge(configure(), opts))
 
       @doc ~S"""
       Execute a Redis command.
@@ -51,6 +66,14 @@ defmodule Raditz do
       """
       @spec info :: {:ok, map} | {:error, atom}
       def info, do: Util.info(__MODULE__)
+
+      ### Configuration ###
+
+      @doc false
+      @impl __MODULE__
+      def configure, do: unquote(opts)
+
+      defoverridable configure: 0
     end
   end
 end
