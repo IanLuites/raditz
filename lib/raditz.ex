@@ -24,7 +24,7 @@ defmodule Raditz do
   @doc ~S"""
   Apply dynamic configuration at startup.
   """
-  @callback configure :: :ok
+  @callback configure :: Keyword.t()
 
   @doc @moduledoc
   defmacro __using__(opts \\ []) do
@@ -39,6 +39,8 @@ defmodule Raditz do
       end
 
     quote location: :keep do
+      @behaviour unquote(__MODULE__)
+
       @doc false
       @spec child_spec(Keyword.t()) :: term
       def child_spec(opts),
@@ -70,7 +72,7 @@ defmodule Raditz do
       ### Configuration ###
 
       @doc false
-      @impl __MODULE__
+      @impl unquote(__MODULE__)
       def configure, do: unquote(opts)
 
       defoverridable configure: 0
