@@ -68,8 +68,8 @@ defmodule Raditz do
       {:ok, "somevalue"}
       ```
       """
-      @spec command([binary], Keyword.t()) ::
-              {:ok, [Redix.Protocol.redis_value()]} | {:error, atom | Redix.Error.t()}
+      @spec command([binary | integer], Keyword.t()) ::
+              {:ok, Redix.Protocol.redis_value()} | {:error, atom | Redix.Error.t()}
       def command(command, opts \\ []), do: unquote(pool).command(__MODULE__, command, opts)
 
       @doc """
@@ -93,8 +93,8 @@ defmodule Raditz do
       {:ok, ["key1", "key2", "first", "second"]}
       ```
       """
-      @spec script(atom, [binary], Keyword.t()) ::
-              {:ok, [Redix.Protocol.redis_value()]} | {:error, atom | Redix.Error.t()}
+      @spec script(atom, [binary | integer], Keyword.t()) ::
+              {:ok, Redix.Protocol.redis_value()} | {:error, atom | Redix.Error.t()}
       def script(script, command, opts \\ []),
         do: unquote(pool).script(__MODULE__, script, command, opts)
 
@@ -118,7 +118,7 @@ defmodule Raditz do
       {:ok, ["OK", "QUEUED", "QUEUED", [1, 1]]}
       ```
       """
-      @spec multi([[binary]], Keyword.t()) ::
+      @spec multi([[binary | integer]], Keyword.t()) ::
               {:ok, [Redix.Protocol.redis_value()]} | {:error, atom | Redix.Error.t()}
       def multi(commands, opts \\ []), do: unquote(pool).multi(__MODULE__, commands, opts)
 
@@ -238,7 +238,7 @@ defmodule Raditz do
 
   defmacro __before_compile__(_env) do
     quote do
-      @spec __base_options__ :: Keyword.t()
+      @spec __scripts__ :: Keyword.t()
       defp __scripts__, do: @scripts
     end
   end
