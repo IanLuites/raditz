@@ -43,8 +43,12 @@ defmodule Raditz do
 
       @doc false
       @spec child_spec(Keyword.t()) :: term
-      def child_spec(opts),
-        do: unquote(pool).child_spec(__MODULE__, Keyword.merge(configure(), opts))
+      def child_spec(opts) do
+        unquote(pool).child_spec(
+          __MODULE__,
+          __base_options__() |> Keyword.merge(configure()) |> Keyword.merge(opts)
+        )
+      end
 
       @doc """
       Execute a Redis command.
@@ -61,6 +65,32 @@ defmodule Raditz do
       @spec command([binary], Keyword.t()) ::
               {:ok, [Redix.Protocol.redis_value()]} | {:error, atom | Redix.Error.t()}
       def command(command, opts \\ []), do: unquote(pool).command(__MODULE__, command, opts)
+
+      @doc """
+      Execute a predefined Redis script command.
+
+      ## Examples
+
+      Given the following setup:
+      ```elixir
+      use Raditz,
+        scripts: [
+          example: [
+            keys: 2,
+            code: ~S"return {KEYS[1],KEYS[2],ARGV[1],ARGV[2]}"
+          ]
+        ]
+      ```
+
+      ```elixir
+      iex> #{inspect(__MODULE__)}.script(:example, ~W(key1 key2 first second))
+      {:ok, ["key1", "key2", "first", "second"]}
+      ```
+      """
+      @spec script(atom, [binary], Keyword.t()) ::
+              {:ok, [Redix.Protocol.redis_value()]} | {:error, atom | Redix.Error.t()}
+      def script(script, command, opts \\ []),
+        do: unquote(pool).script(__MODULE__, script, command, opts)
 
       @doc """
       Run a multiple Redis commands in a transaction.
@@ -157,7 +187,10 @@ defmodule Raditz do
 
       @doc false
       @impl unquote(__MODULE__)
-      def configure, do: unquote(opts)
+      def configure, do: []
+
+      @spec __base_options__ :: Keyword.t()
+      defp __base_options__, do: unquote(opts)
 
       defoverridable configure: 0
     end
