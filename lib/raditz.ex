@@ -39,6 +39,9 @@ defmodule Raditz do
       end
 
     quote location: :keep do
+      Module.register_attribute(__MODULE__, :scripts, accumulate: true)
+      import unquote(__MODULE__), only: [defscript: 2]
+      @before_compile unquote(__MODULE__)
       @behaviour unquote(__MODULE__)
 
       @doc false
@@ -46,7 +49,10 @@ defmodule Raditz do
       def child_spec(opts) do
         unquote(pool).child_spec(
           __MODULE__,
-          __base_options__() |> Keyword.merge(configure()) |> Keyword.merge(opts)
+          __base_options__()
+          |> Keyword.merge(configure())
+          |> Keyword.merge(opts)
+          |> Keyword.update(:scripts, __scripts__(), fn s -> Keyword.merge(s, __scripts__()) end)
         )
       end
 
@@ -193,6 +199,47 @@ defmodule Raditz do
       defp __base_options__, do: unquote(opts)
 
       defoverridable configure: 0
+    end
+  end
+
+  defmacro defscript(header, opts) do
+    {name, args} =
+      case Macro.decompose_call(header) do
+        {_, _} = pair -> pair
+        _ -> raise ArgumentError, "invalid syntax in defscript #{Macro.to_string(header)}"
+      end
+
+    as_args =
+      Enum.map(args, fn
+        {:\\, _, [arg, _default_arg]} -> arg
+        arg -> arg
+      end)
+
+    scripts =
+      if f = opts[:file] do
+        f = Macro.expand(f, __CALLER__)
+        o = opts |> Keyword.delete(:file) |> Keyword.put(:code, File.read!(f))
+
+        quote do
+          @external_resource unquote(f)
+          @scripts {unquote(name), unquote(o)}
+        end
+      else
+        quote do: @scripts({unquote(name), unquote(opts)})
+      end
+
+    quote location: :keep do
+      def unquote(name)(unquote_splicing(args), opts \\ []),
+        do: script(unquote(name), [unquote_splicing(as_args)], opts)
+
+      unquote(scripts)
+    end
+  end
+
+  defmacro __before_compile__(_env) do
+    quote do
+      @spec __base_options__ :: Keyword.t()
+      defp __scripts__, do: @scripts
     end
   end
 end
