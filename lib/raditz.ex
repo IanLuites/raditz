@@ -38,6 +38,7 @@ defmodule Raditz do
         :default -> Raditz.PoolBoy
       end
 
+    # credo:disable-for-next-line Credo.Check.Refactor.LongQuoteBlocks
     quote location: :keep do
       Module.register_attribute(__MODULE__, :scripts, accumulate: true)
       import unquote(__MODULE__), only: [defscript: 2]
@@ -213,6 +214,7 @@ defmodule Raditz do
 
       @doc false
       @impl unquote(__MODULE__)
+      @spec configure :: Keyword.t()
       def configure, do: []
 
       @spec __base_options__ :: Keyword.t()

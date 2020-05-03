@@ -85,18 +85,18 @@ defmodule Raditz.PoolBoy do
     {:reply, apply(Redix, command, [conn, args, opts]), state}
   end
 
-  @spec connect(Keyword.t()) :: Redix.Connection.t()
+  @spec connect(Keyword.t()) :: Redix.connection()
   defp connect(config) do
     url = redis_url(config) || raise "Missing Redis url."
     {:ok, conn} = Redix.start_link(url)
     conn
   end
 
-  @spec redis_url(Keyword.t()) :: String.t()
+  @spec redis_url(Keyword.t()) :: String.t() | nil
   defp redis_url(config),
     do: Application.get_env(config[:otp_app], config[:server], [])[:url] || config[:url]
 
-  @spec load_scripts(Redix.Connection.t(), Keyword.t()) :: map
+  @spec load_scripts(Redix.connection(), Keyword.t()) :: map
   defp load_scripts(conn, config) do
     scripts =
       Application.get_env(config[:otp_app], config[:server], [])[:scripts] || config[:scripts]
