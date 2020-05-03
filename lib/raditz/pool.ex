@@ -11,6 +11,9 @@ defmodule Raditz.Pool do
   @callback multi(module, [[binary]], Keyword.t()) ::
               {:ok, [Redix.Protocol.redis_value()]} | {:error, atom | Redix.Error.t()}
 
+  @callback pipeline(module, [[binary]], Keyword.t()) ::
+              {:ok, [Redix.Protocol.redis_value()]} | {:error, atom | Redix.Error.t()}
+
   @callback script(module, atom, [binary], Keyword.t()) ::
               {:ok, [Redix.Protocol.redis_value()]} | {:error, atom | Redix.Error.t()}
 end

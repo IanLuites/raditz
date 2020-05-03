@@ -37,6 +37,15 @@ defmodule Raditz.PoolBoy do
   end
 
   @impl Raditz.Pool
+  def pipeline(pool, commands, opts \\ []) do
+    :poolboy.transaction(
+      pool,
+      &GenServer.call(&1, {:pipeline, commands, opts}),
+      Keyword.get(opts, :timeout, 5000)
+    )
+  end
+
+  @impl Raditz.Pool
   def script(pool, script, command, opts \\ []) do
     :poolboy.transaction(
       pool,

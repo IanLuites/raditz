@@ -122,6 +122,26 @@ defmodule Raditz do
               {:ok, [Redix.Protocol.redis_value()]} | {:error, atom | Redix.Error.t()}
       def multi(commands, opts \\ []), do: unquote(pool).multi(__MODULE__, commands, opts)
 
+      @doc """
+      Run a multiple Redis commands in a single pipeline.
+
+      The result on success will be a list of results for each command.
+      Results are returned in the other the commands were given.
+
+      ## Examples
+
+      ```elixir
+      iex> #{inspect(__MODULE__)}.pipeline([
+      ...>   ~W(INCR foo),
+      ...>   ~W(INCR bar)
+      ...> ])
+      {:ok, [1, 1]}
+      ```
+      """
+      @spec pipeline([[binary | integer]], Keyword.t()) ::
+              {:ok, [Redix.Protocol.redis_value()]} | {:error, atom | Redix.Error.t()}
+      def pipeline(commands, opts \\ []), do: unquote(pool).pipeline(__MODULE__, commands, opts)
+
       ### Utility ###
       alias Raditz.Util
 
