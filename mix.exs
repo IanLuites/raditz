@@ -4,7 +4,7 @@ defmodule Raditz.MixProject do
   def project do
     [
       app: :raditz,
-      version: "0.0.7",
+      version: "0.0.9",
       description: "Pooled Redis client for Elixir based on Redix.",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,

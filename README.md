@@ -29,7 +29,7 @@ by adding `raditz` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:raditz, "~> 0.0.1"}
+    {:raditz, "~> 0.0.9"}
   ]
 end
 ```
