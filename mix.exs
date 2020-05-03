@@ -19,7 +19,10 @@ defmodule Raditz.MixProject do
         "coveralls.post": :test,
         "coveralls.html": :test
       ],
-      dialyzer: [ignore_warnings: ".dialyzer", plt_add_deps: true],
+      dialyzer: [
+        # ignore_warnings: ".dialyzer",
+        plt_add_deps: true
+      ],
 
       # Docs
       name: "Raditz",
@@ -66,7 +69,7 @@ defmodule Raditz.MixProject do
       {:poolboy, "~> 1.5"},
 
       # Dev / Test
-      {:analyze, "~> 0.1.9", only: [:dev, :test], runtime: false, optional: true}
+      {:analyze, "~> 0.1.12", only: [:dev, :test], runtime: false, optional: true}
     ]
   end
 end
