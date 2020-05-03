@@ -32,7 +32,7 @@ defmodule Raditz do
 
     pool =
       cond do
-        pool = Application.get_env(otp_app, __CALLER__, [])[:pool] -> pool
+        pool = Application.get_env(otp_app, __CALLER__.module, [])[:pool] -> pool
         pool = opts[:pool] -> pool
         pool = Application.get_env(:raditz, :pool) -> pool
         :default -> Raditz.PoolBoy
