@@ -1,8 +1,7 @@
 defmodule Raditz.PoolBoy do
   @moduledoc false
   use GenServer
-
-  @behaviour Raditz.Pool
+  use Raditz.PoolEntity
 
   @impl Raditz.Pool
   def child_spec(pool, opts \\ []) do
@@ -12,7 +11,7 @@ defmodule Raditz.PoolBoy do
         name: {:local, pool},
         worker_module: __MODULE__,
         size: Keyword.get(opts, :pool_size, 1),
-        max_overlow: Keyword.get(opts, :pool_overflow, 5)
+        max_overflow: Keyword.get(opts, :pool_overflow, 5)
       ],
       Keyword.put(opts, :server, pool)
     )
@@ -68,7 +67,7 @@ defmodule Raditz.PoolBoy do
 
   @impl GenServer
   def handle_call(command, from, state = %{config: config, conn: nil}) do
-    conn = connect(config)
+    {:ok, conn} = connect(config)
     scripts = load_scripts(conn, config)
 
     handle_call(command, from, %{state | conn: conn, scripts: scripts})
@@ -83,27 +82,5 @@ defmodule Raditz.PoolBoy do
 
   def handle_call({command, args, opts}, _from, state = %{conn: conn}) do
     {:reply, apply(Redix, command, [conn, args, opts]), state}
-  end
-
-  @spec connect(Keyword.t()) :: Redix.connection()
-  defp connect(config) do
-    url = redis_url(config) || raise "Missing Redis url."
-    {:ok, conn} = Redix.start_link(url)
-    conn
-  end
-
-  @spec redis_url(Keyword.t()) :: String.t() | nil
-  defp redis_url(config),
-    do: Application.get_env(config[:otp_app], config[:server], [])[:url] || config[:url]
-
-  @spec load_scripts(Redix.connection(), Keyword.t()) :: map
-  defp load_scripts(conn, config) do
-    scripts =
-      Application.get_env(config[:otp_app], config[:server], [])[:scripts] || config[:scripts]
-
-    Enum.reduce(scripts || [], %{}, fn {script, opts}, acc ->
-      sha = Redix.command!(conn, ["SCRIPT", "LOAD", opts[:code]])
-      Map.put(acc, script, {sha, opts[:keys]})
-    end)
   end
 end
